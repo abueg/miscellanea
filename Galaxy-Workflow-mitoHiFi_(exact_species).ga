@@ -1,0 +1,495 @@
+{
+    "a_galaxy_workflow": "true",
+    "annotation": "mitoHiFi workflow first looks for exact species mito reference, then will run mitoHiFi on reads",
+    "format-version": "0.1",
+    "name": "mitoHiFi (exact species)",
+    "steps": {
+        "0": {
+            "annotation": "",
+            "content_id": null,
+            "errors": null,
+            "id": 0,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "",
+                    "name": "PacBio HiFi read collection"
+                }
+            ],
+            "label": "PacBio HiFi read collection",
+            "name": "Input dataset collection",
+            "outputs": [],
+            "position": {
+                "bottom": 500.1000061035156,
+                "height": 82.20001220703125,
+                "left": -175,
+                "right": 25,
+                "top": 417.8999938964844,
+                "width": 200,
+                "x": -175,
+                "y": 417.8999938964844
+            },
+            "tool_id": null,
+            "tool_state": "{\"optional\": false, \"tag\": \"\", \"collection_type\": \"list\"}",
+            "tool_version": null,
+            "type": "data_collection_input",
+            "uuid": "ef445714-e808-4caa-83e5-b9f2a77b3bf8",
+            "workflow_outputs": []
+        },
+        "1": {
+            "annotation": "Species name, e.g., \"homo sapiens\" (no quotations)",
+            "content_id": null,
+            "errors": null,
+            "id": 1,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "Species name, e.g., \"homo sapiens\" (no quotations)",
+                    "name": "Species name"
+                }
+            ],
+            "label": "Species name",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "bottom": 628.1000366210938,
+                "height": 82.20001220703125,
+                "left": -172,
+                "right": 28,
+                "top": 545.9000244140625,
+                "width": 200,
+                "x": -172,
+                "y": 545.9000244140625
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"text\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "51f6a909-9e02-45e5-aa37-8179fee2d250",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "a0fe309e-bc50-40db-a390-8793965cfe90"
+                }
+            ]
+        },
+        "2": {
+            "annotation": "Email address for NCBI lookup",
+            "content_id": null,
+            "errors": null,
+            "id": 2,
+            "input_connections": {},
+            "inputs": [
+                {
+                    "description": "Email address for NCBI lookup",
+                    "name": "Email address"
+                }
+            ],
+            "label": "Email address",
+            "name": "Input parameter",
+            "outputs": [],
+            "position": {
+                "bottom": 753.1000366210938,
+                "height": 82.20001220703125,
+                "left": -175,
+                "right": 25,
+                "top": 670.9000244140625,
+                "width": 200,
+                "x": -175,
+                "y": 670.9000244140625
+            },
+            "tool_id": null,
+            "tool_state": "{\"parameter_type\": \"text\", \"optional\": false}",
+            "tool_version": null,
+            "type": "parameter_input",
+            "uuid": "99492f38-c6c4-4d5f-b766-0cbc77f1e77d",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output",
+                    "uuid": "e74d6443-e80f-4275-a360-8d8686fe7bde"
+                }
+            ]
+        },
+        "3": {
+            "annotation": "Looks up reference mito genome in NCBI based on your species name. Uses 16kbp mininum length, and searches for exact species.",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/mitohifi/mitohifi/2+galaxy0",
+            "errors": null,
+            "id": 3,
+            "input_connections": {
+                "operation_mode|email": {
+                    "id": 2,
+                    "output_name": "output"
+                },
+                "operation_mode|species": {
+                    "id": 1,
+                    "output_name": "output"
+                }
+            },
+            "inputs": [],
+            "label": "MitoHiFi (reference lookup)",
+            "name": "MitoHiFi",
+            "outputs": [
+                {
+                    "name": "fasta_reference",
+                    "type": "fasta"
+                },
+                {
+                    "name": "genbank_reference",
+                    "type": "genbank"
+                }
+            ],
+            "position": {
+                "bottom": 880.300048828125,
+                "height": 276.4000244140625,
+                "left": 116,
+                "right": 316,
+                "top": 603.9000244140625,
+                "width": 200,
+                "x": 116,
+                "y": 603.9000244140625
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/mitohifi/mitohifi/2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "f6065bc6e428",
+                "name": "mitohifi",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"operation_mode\": {\"command\": \"find_reference\", \"__current_case__\": 0, \"species\": {\"__class__\": \"ConnectedValue\"}, \"email\": {\"__class__\": \"ConnectedValue\"}, \"min_length\": \"1600\", \"exact_specie\": \"true\"}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2+galaxy0",
+            "type": "tool",
+            "uuid": "6e5df7f5-5236-41c3-bc75-b2aa9b1835f7",
+            "workflow_outputs": [
+                {
+                    "label": "MitoHiFi on input dataset(s): reference genome (genbank)",
+                    "output_name": "genbank_reference",
+                    "uuid": "1c808a0b-43e5-4a6a-b3d5-a8fe8f46085a"
+                },
+                {
+                    "label": "MitoHiFi on input dataset(s): reference genome (FASTA)",
+                    "output_name": "fasta_reference",
+                    "uuid": "5c504e8f-e935-4843-99c3-2b4bcd22440d"
+                }
+            ]
+        },
+        "4": {
+            "annotation": "Runs MitoHiFi using the reference genome found by MitoHiFi (reference lookup) step, and the PacBio HiFi read collection.",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/bgruening/mitohifi/mitohifi/2+galaxy0",
+            "errors": null,
+            "id": 4,
+            "input_connections": {
+                "operation_mode|input_option|input_reads": {
+                    "id": 0,
+                    "output_name": "output"
+                },
+                "operation_mode|reference_fasta": {
+                    "id": 3,
+                    "output_name": "fasta_reference"
+                },
+                "operation_mode|reference_genbank": {
+                    "id": 3,
+                    "output_name": "genbank_reference"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool MitoHiFi",
+                    "name": "operation_mode"
+                },
+                {
+                    "description": "runtime parameter for tool MitoHiFi",
+                    "name": "operation_mode"
+                }
+            ],
+            "label": "MitoHiFi (actual run)",
+            "name": "MitoHiFi",
+            "outputs": [
+                {
+                    "name": "mitogenome_fasta",
+                    "type": "fasta"
+                },
+                {
+                    "name": "mitogenome_genbank",
+                    "type": "genbank"
+                },
+                {
+                    "name": "hifiasm",
+                    "type": "fasta"
+                },
+                {
+                    "name": "hifiasm_filtered",
+                    "type": "fasta"
+                },
+                {
+                    "name": "hifiasm_contigs",
+                    "type": "fasta"
+                },
+                {
+                    "name": "zip_file",
+                    "type": "zip"
+                }
+            ],
+            "position": {
+                "bottom": 1027.1000061035156,
+                "height": 673.2000122070312,
+                "left": 422,
+                "right": 622,
+                "top": 353.8999938964844,
+                "width": 200,
+                "x": 422,
+                "y": 353.8999938964844
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/bgruening/mitohifi/mitohifi/2+galaxy0",
+            "tool_shed_repository": {
+                "changeset_revision": "f6065bc6e428",
+                "name": "mitohifi",
+                "owner": "bgruening",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"operation_mode\": {\"command\": \"mitohifi\", \"__current_case__\": 1, \"input_option\": {\"input\": \"pacbio\", \"__current_case__\": 0, \"input_reads\": {\"__class__\": \"RuntimeValue\"}, \"bloom_filter\": \"0\"}, \"reference_fasta\": {\"__class__\": \"RuntimeValue\"}, \"reference_genbank\": {\"__class__\": \"RuntimeValue\"}, \"genetic_code\": \"2\", \"advanced_options\": {\"query_blast\": null, \"circular_size\": null, \"circular_offset\": null, \"outputs\": null}, \"output_zip\": \"true\"}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2+galaxy0",
+            "type": "tool",
+            "uuid": "578bcb15-c4d5-4670-a702-28f0c794fcc5",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "hifiasm_filtered",
+                    "uuid": "5b3ffb8b-4c0a-4ec9-9faa-5299b7d23b0c"
+                },
+                {
+                    "label": null,
+                    "output_name": "hifiasm_contigs",
+                    "uuid": "edc228cb-ac43-4072-a158-7d74cdbaa18a"
+                },
+                {
+                    "label": null,
+                    "output_name": "zip_file",
+                    "uuid": "4d835d3d-e505-4bd9-a3b0-57d6148fc45c"
+                },
+                {
+                    "label": null,
+                    "output_name": "mitogenome_fasta",
+                    "uuid": "99327b89-f80b-4d43-8c1f-53036f41aab4"
+                },
+                {
+                    "label": null,
+                    "output_name": "mitogenome_genbank",
+                    "uuid": "16104290-5ff0-4e03-a703-c0be763a8127"
+                },
+                {
+                    "label": null,
+                    "output_name": "hifiasm",
+                    "uuid": "431107d7-b285-49d3-8a25-e44e27b850d0"
+                }
+            ]
+        },
+        "5": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/iuc/mitos2/mitos2/2.0.6+galaxy1",
+            "errors": null,
+            "id": 5,
+            "input_connections": {
+                "input": {
+                    "id": 4,
+                    "output_name": "mitogenome_fasta"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool MITOS2",
+                    "name": "input"
+                }
+            ],
+            "label": null,
+            "name": "MITOS2",
+            "outputs": [
+                {
+                    "name": "ncRNA_structure_plot_svg_out",
+                    "type": "input"
+                },
+                {
+                    "name": "bedout",
+                    "type": "bed"
+                },
+                {
+                    "name": "mitoout",
+                    "type": "tabular"
+                },
+                {
+                    "name": "gffout",
+                    "type": "gff"
+                },
+                {
+                    "name": "seqout",
+                    "type": "txt"
+                },
+                {
+                    "name": "faa",
+                    "type": "fasta"
+                },
+                {
+                    "name": "fas",
+                    "type": "fasta"
+                },
+                {
+                    "name": "geneorderout",
+                    "type": "fasta"
+                },
+                {
+                    "name": "protein_plot_out",
+                    "type": "pdf"
+                },
+                {
+                    "name": "ncRNA_plot_out",
+                    "type": "pdf"
+                },
+                {
+                    "name": "rawout",
+                    "type": "zip"
+                }
+            ],
+            "position": {
+                "bottom": 1029.9999694824219,
+                "height": 723.5999755859375,
+                "left": 836.5,
+                "right": 1036.5,
+                "top": 306.3999938964844,
+                "width": 200,
+                "x": 836.5,
+                "y": 306.3999938964844
+            },
+            "post_job_actions": {
+                "HideDatasetActionfaa": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "faa"
+                },
+                "HideDatasetActionfas": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "fas"
+                },
+                "HideDatasetActionncRNA_plot_out": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "ncRNA_plot_out"
+                },
+                "HideDatasetActionncRNA_structure_plot_svg_out": {
+                    "action_arguments": {},
+                    "action_type": "HideDatasetAction",
+                    "output_name": "ncRNA_structure_plot_svg_out"
+                }
+            },
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/iuc/mitos2/mitos2/2.0.6+galaxy1",
+            "tool_shed_repository": {
+                "changeset_revision": "80323066acd4",
+                "name": "mitos2",
+                "owner": "iuc",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"addoutputs\": [\"bed\", \"mito\", \"gff\", \"seq\", \"fas\", \"faa\", \"geneorder\", \"protein_plot\", \"ncRNA_plot\", \"ncRNA_structure_svg_plots\", \"raw\"], \"advanced\": {\"featuretypes\": [\"prot\", \"trna\", \"rrna\"], \"finovl\": \"50\", \"best\": \"false\", \"fragovl\": \"20\", \"fragfac\": \"10.0\"}, \"advanced_ncrna\": {\"locandgloc\": \"false\", \"ncev\": \"0.01\", \"sensitive\": \"false\", \"maxtrnaovl\": \"50\", \"maxrrnaovl\": \"50\"}, \"advanced_prot\": {\"evalue\": \"2.0\", \"cutoff\": \"50\", \"clipfac\": \"10.0\", \"ncbicode\": \"false\", \"alarab\": \"false\", \"oldstst\": \"false\"}, \"code\": \"2\", \"input\": {\"__class__\": \"RuntimeValue\"}, \"linear\": \"false\", \"refseqver\": \"refseq89m\", \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.0.6+galaxy1",
+            "type": "tool",
+            "uuid": "baf0fbb7-68ae-4ee4-bd87-37fd917e74e5",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "bedout",
+                    "uuid": "661d2410-bfa8-40ec-90ee-2aaefa8cd069"
+                },
+                {
+                    "label": null,
+                    "output_name": "geneorderout",
+                    "uuid": "7b0ce156-1155-42f4-b33f-d37440c45df8"
+                },
+                {
+                    "label": null,
+                    "output_name": "protein_plot_out",
+                    "uuid": "a3ecfcac-505f-472e-9c8d-ddb7c93b2f5c"
+                },
+                {
+                    "label": null,
+                    "output_name": "rawout",
+                    "uuid": "00e3e997-9182-48b8-aa96-3d96ef523f4a"
+                },
+                {
+                    "label": null,
+                    "output_name": "mitoout",
+                    "uuid": "58a90c4f-8861-46d2-a030-40ac46897073"
+                },
+                {
+                    "label": null,
+                    "output_name": "gffout",
+                    "uuid": "3ffc0a6b-45bc-4757-86ff-e8838e61286c"
+                },
+                {
+                    "label": null,
+                    "output_name": "seqout",
+                    "uuid": "eda3d26f-a2bd-476d-a6a9-81f497585b46"
+                }
+            ]
+        },
+        "6": {
+            "annotation": "",
+            "content_id": "toolshed.g2.bx.psu.edu/repos/devteam/ncbi_blast_plus/ncbi_blastn_wrapper/2.10.1+galaxy1",
+            "errors": null,
+            "id": 6,
+            "input_connections": {
+                "query": {
+                    "id": 4,
+                    "output_name": "mitogenome_fasta"
+                }
+            },
+            "inputs": [
+                {
+                    "description": "runtime parameter for tool NCBI BLAST+ blastn",
+                    "name": "query"
+                }
+            ],
+            "label": null,
+            "name": "NCBI BLAST+ blastn",
+            "outputs": [
+                {
+                    "name": "output1",
+                    "type": "tabular"
+                }
+            ],
+            "position": {
+                "bottom": 1216.800033569336,
+                "height": 154.40000915527344,
+                "left": 824,
+                "right": 1024,
+                "top": 1062.4000244140625,
+                "width": 200,
+                "x": 824,
+                "y": 1062.4000244140625
+            },
+            "post_job_actions": {},
+            "tool_id": "toolshed.g2.bx.psu.edu/repos/devteam/ncbi_blast_plus/ncbi_blastn_wrapper/2.10.1+galaxy1",
+            "tool_shed_repository": {
+                "changeset_revision": "acf4e47b734c",
+                "name": "ncbi_blast_plus",
+                "owner": "devteam",
+                "tool_shed": "toolshed.g2.bx.psu.edu"
+            },
+            "tool_state": "{\"adv_opts\": {\"adv_opts_selector\": \"advanced\", \"__current_case__\": 1, \"filter_query\": \"true\", \"strand\": \"-strand both\", \"max_hits\": \"0\", \"max_hsps\": null, \"identity_cutoff\": \"0.0\", \"word_size\": null, \"ungapped\": \"false\", \"parse_deflines\": \"false\", \"adv_optional_id_files_opts\": {\"adv_optional_id_files_opts_selector\": \"none\", \"__current_case__\": 0}, \"qcov_hsp_perc\": \"0.0\", \"window_size\": null, \"gapopen\": null, \"gapextend\": null}, \"blast_type\": \"megablast\", \"db_opts\": {\"db_opts_selector\": \"db\", \"__current_case__\": 0, \"database\": [\"refseq_mitochondrion\"], \"histdb\": \"\", \"subject\": \"\"}, \"evalue_cutoff\": \"0.001\", \"output\": {\"out_format\": \"cols\", \"__current_case__\": 2, \"std_cols\": [\"qseqid\", \"sseqid\", \"pident\", \"length\", \"mismatch\", \"gapopen\", \"qstart\", \"qend\", \"sstart\", \"send\", \"evalue\", \"bitscore\"], \"ext_cols\": null, \"ids_cols\": null, \"misc_cols\": null, \"tax_cols\": [\"staxids\", \"sscinames\", \"scomnames\", \"sblastnames\", \"sskingdoms\"]}, \"query\": {\"__class__\": \"RuntimeValue\"}, \"__page__\": null, \"__rerun_remap_job_id__\": null}",
+            "tool_version": "2.10.1+galaxy1",
+            "type": "tool",
+            "uuid": "e7e8087b-3aaa-434c-9c07-536b0feec4e9",
+            "workflow_outputs": [
+                {
+                    "label": null,
+                    "output_name": "output1",
+                    "uuid": "35c025e3-f011-41bb-ab76-4d587ae13359"
+                }
+            ]
+        }
+    },
+    "tags": [],
+    "uuid": "04de7827-3113-497e-a231-e759f18cc60c",
+    "version": 6
+}
