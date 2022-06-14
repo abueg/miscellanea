@@ -1,0 +1,100 @@
+#!/bin/bash
+
+### wrapper script adapted heavily from MitoVGP scripts
+### script runs mitohifi locally and also blasts at various adjusted query covg percentages for further investigation
+
+printf "\n\n++++ setting up dependencies including my mitohifi env ++++\n\n"
+$MYCONDA init
+source ~/.bashrc
+conda activate mitohifi
+while read paths; do
+	export PATH=$PATH:/lustre/fs5/vgl/store/labueg/programs/mitohifi_deps/$paths/ ;
+done < <(ls /lustre/fs5/vgl/store/labueg/programs/mitohifi_deps/)
+while read paths; do
+	export PATH=$PATH:/lustre/fs5/vgl/store/labueg/programs/mitohifi_deps/$paths/bin/ ;
+done < <(ls /lustre/fs5/vgl/store/labueg/programs/mitohifi_deps/)
+export PATH=$PATH:$STORE/programs/MitoHiFi/
+
+printf "\n\n++++ parsing arguments ++++\n\n"
+# set options
+while getopts ":s:i:e:r:t:p:" opt; do
+	case $opt in
+		s)
+			SPECIES="$OPTARG"
+			echo "Species: -s $OPTARG"
+			;;
+        i)
+        	ID="$OPTARG"
+        	echo "Species ID: -i $OPTARG"
+            ;;
+		e)
+            EMAIL="$OPTARG"
+			echo "Email: -e $OPTARG"
+			;;
+		r)
+            READSDIR="$OPTARG"
+			echo "Reads dir: -r $OPTARG"
+			;;
+        t)
+            THREADS="$OPTARG"
+            echo "Threads: -t $OPTARG"
+            ;;
+		p)
+			PERCENT="$OPTARG"
+			echo "Percent (for adjusted query cover for mitoVGP): -p $OPTARG"
+			;;
+		\?)
+			echo "ERROR - Invalid option: -$OPTARG" >&2
+			exit 1
+			;;
+	esac
+printf "\n" $SPECIES $ID $EMAIL $READSDIR $THREADS $PERCENT
+done
+
+printf "\n\n++++ running: mitoHiFi finding reference ++++\n\n"
+printf "findMitoReference.py --species $SPECIES --email $EMAIL --outfolder . --min_length 16000\n"
+
+findMitoReference.py --species $SPECIES --email $EMAIL --outfolder . --min_length 16000
+
+printf "using the mitochondria from: "
+head -n 1 *.1.fasta
+export REFACC=$(ls *.1.gb | cut -d "." -f 1)
+
+printf "\n\n++++ running: mitoHiFi ++++\n\n"
+printf "using fastq.gz files in $READSDIR :\n"
+export READSSTR=$(ls $READSDIR/*.fastq.gz | sed 's/\n/ /g')
+echo $READSSTR
+
+printf "\npython $STORE/programs/MitoHiFi/mitohifi.py -r \"$READSSTR\" -f $REFACC.1.fasta -g $REFACC.1.gb -t $THREADS -o 2\n"
+python $STORE/programs/MitoHiFi/mitohifi.py -r "$READSSTR" -f $REFACC.1.fasta -g $REFACC.1.gb -t $THREADS -o 2
+
+printf "\n\n++++ renaming mitoHiFi final mitogenome files, making mitoVGP folder etc ++++\n\n"
+mv final_mitogenome.fasta ${ID}_mitohifi_final.fasta
+mv final_mitogenome.gb ${ID}_mitohifi_final.gb
+mkdir mitoVGP
+cd mitoVGP
+ln -s ../reads_mapping_and_assembly/gbk.HiFiMapped.bam.fasta ./${ID}_mitohifi_mappedreads.fasta
+ln -s ../reads_mapping_and_assembly/gbk.HiFiMapped.bam.filtered.assembled.r_utg.gfa ./${ID}_mitohifi_assembled_r_utg.gfa
+gfa2fa ./${ID}_mitohifi_assembled_r_utg.gfa > ${ID}_mitohifi_assembled_r_utg.fasta
+
+printf "\n\n++++ checking if there are any circular contigs in the mitohifi unitigs ++++\n\n"
+grep "^S" ${ID}_mitohifi_assembled_r_utg.gfa | cut -f 2
+
+printf "\n\n++++ using mitoVGP blast filter on the unfiltered mitoHiFi reads ++++\n\n"
+conda activate blast
+export GSIZE=$(grep -v "^>" ../${REFACC}.1.fasta | wc -c)
+
+makeblastdb -in ${ID}_mitohifi_mappedreads.fasta -parse_seqids -dbtype nucl -out ${ID}_mitohifi_mappedreads.fasta.db
+
+for i in `seq 0 10 90`; do
+	blastn -outfmt "6 sseqid slen qcovs" -query ../${REFACC}.1.fasta -db ${ID}_mitohifi_mappedreads.fasta.db | sort -k2 -nr | uniq | awk -v gsize=${GSIZE} '{printf $0 "\t" gsize/$2*$3 "\n"}' | awk -v per=${i} '{if($4>per) printf $0 "\n"}' | cut -f 1 > ${ID}_mitoVGP_${i}pct.names
+done
+
+while read line ; do
+	grep -A1 ${line} ${ID}_mitohifi_mappedreads.fasta >> ${ID}_mitoVGP_${PERCENT}pct.fasta ;
+done < ${ID}_mitoVGP_${PERCENT}pct.names
+
+printf "\n\n++++ using hifiasm on the mitoVGP filtered reads ++++\n\n"
+echo $STORE/programs/hifiasm/hifiasm --primary -t "${THREADS}" -f 0 -o "${ID}"_mitoVGP_"${PERCENT}"pct_assembled "${ID}"_mitoVGP_"${PERCENT}"pct.fasta
+$STORE/programs/hifiasm/hifiasm --primary -t "${THREADS}" -f 0 -o "${ID}"_mitoVGP_"${PERCENT}"pct_assembled "${ID}"_mitoVGP_"${PERCENT}"pct.fasta
+
